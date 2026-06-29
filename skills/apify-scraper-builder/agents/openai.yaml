@@ -1,0 +1,7 @@
+interface:
+  display_name: "Apify Scraper Builder"
+  short_description: "Build scraper Actors on Apify"
+  default_prompt: "Use $apify-scraper-builder to build or review this Apify scraper Actor."
+
+policy:
+  allow_implicit_invocation: true
