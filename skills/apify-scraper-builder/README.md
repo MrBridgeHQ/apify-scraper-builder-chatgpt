@@ -1,21 +1,21 @@
-# Apify Scraper Builder — a ChatGPT/Codex skill
+# Apify Scraper Builder - a ChatGPT/Codex skill
 
-A skill (ChatGPT/Codex format) for building, modifying, debugging, or reviewing **scraper Actors on Apify** — from configuring an existing no-code scraper to coding a full Crawlee-based crawler, wiring Pay-per-Event billing, and passing a publish checklist.
+A skill (ChatGPT/Codex format) for building, modifying, debugging, or reviewing **scraper Actors on Apify** - from configuring an existing no-code scraper to coding a full Crawlee-based crawler, wiring Pay-per-Event billing, and passing a publish checklist.
 
 It is the **code-first entry point** for scraper Actors: given that you have already decided *what* to scrape, this skill helps you scaffold the Actor the right way and avoid the expensive mistakes (wrong template, charging on retries, `Actor.fail()` for business errors, burning your own IP during local dev).
 
 ## Why this skill exists
 
-Most people walk into an Apify scraper thinking they should write everything from scratch with Crawlee. In about 60% of cases, a no-code scraper Actor or an LLM-extraction Actor is the right answer. Picking the wrong path — or the wrong Crawlee template — wastes compute, burns money on browser overhead you don't need, and produces an Actor that fails silently or charges users on errors.
+Most people walk into an Apify scraper thinking they should write everything from scratch with Crawlee. In about 60% of cases, a no-code scraper Actor or an LLM-extraction Actor is the right answer. Picking the wrong path - or the wrong Crawlee template - wastes compute, burns money on browser overhead you don't need, and produces an Actor that fails silently or charges users on errors.
 
 This skill encodes the **three-paths decision** plus the five non-negotiable correctness rules every scraper Actor must follow, with empirically grounded defaults (memory tiers, rate-limit ratios, escalation triggers).
 
 ## What it can do
 
 **Three creation paths:**
-- **Path A — Configure a no-code scraper Actor:** one-off scrapes and prototypes via `apify/cheerio-scraper`, `apify/web-scraper`, `apify/puppeteer-scraper`, `apify/playwright-scraper`. No `apify create`, no Docker, no git.
-- **Path B — AI extraction:** for content whose shape varies wildly between pages. Either configure `apify/ai-web-scraper` or roll your own Crawlee + LLM call. Includes the cost math that tells you when AI extraction breaks the unit economics.
-- **Path C — Code from a Crawlee template:** the canonical production path. Full walkthrough from `apify create` to a deployed, monetized, observable scraper.
+- **Path A - Configure a no-code scraper Actor:** one-off scrapes and prototypes via `apify/cheerio-scraper`, `apify/web-scraper`, `apify/puppeteer-scraper`, `apify/playwright-scraper`. No `apify create`, no Docker, no git.
+- **Path B - AI extraction:** for content whose shape varies wildly between pages. Either configure `apify/ai-web-scraper` or roll your own Crawlee + LLM call. Includes the cost math that tells you when AI extraction breaks the unit economics.
+- **Path C - Code from a Crawlee template:** the canonical production path. Full walkthrough from `apify create` to a deployed, monetized, observable scraper.
 
 **The five things every scraper Actor must get right:**
 1. Diagnose before coding (hunt for the internal JSON API first).
@@ -65,13 +65,13 @@ This skill is the scraper-Actor **code & architecture** entry point; it delegate
 
 This skill is part of the [mr-bridge.com](https://mr-bridge.com) toolkit for scraping, data, and content automation. Related resources:
 
-- [mr-bridge.com](https://mr-bridge.com) — home
-- [Scrapers](https://mr-bridge.com/scrapers) — the Apify Actor portfolio
-- [MCP servers](https://mr-bridge.com/mcp-servers) — Model Context Protocol servers
-- [AI workflows](https://mr-bridge.com/ai-workflows) — agents and automation
-- [Studies](https://mr-bridge.com/studies) — data studies and one-pagers
-- [Articles](https://mr-bridge.com/articles) — write-ups and guides
-- [Solutions](https://mr-bridge.com/solutions) — end-to-end solutions
+- [mr-bridge.com](https://mr-bridge.com) - home
+- [Scrapers](https://mr-bridge.com/scrapers) - the Apify Actor portfolio
+- [MCP servers](https://mr-bridge.com/mcp-servers) - Model Context Protocol servers
+- [AI workflows](https://mr-bridge.com/ai-workflows) - agents and automation
+- [Studies](https://mr-bridge.com/studies) - data studies and one-pagers
+- [Articles](https://mr-bridge.com/articles) - write-ups and guides
+- [Solutions](https://mr-bridge.com/solutions) - end-to-end solutions
 
 ## License
 

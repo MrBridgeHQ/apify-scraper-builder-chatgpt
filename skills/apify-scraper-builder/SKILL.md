@@ -5,19 +5,19 @@ description: Build, modify, debug, or review scraper Actors on Apify, including 
 
 # Apify Scraper Builder
 
-Build a scraper Actor on Apify — from configuring an existing no-code scraper to coding a full Crawlee-based crawler. This skill is the **code-first entry point** that orchestrates the canonical 3-paths decision. The deeper doctrine layer (anti-bot strategy, tool ladder, error taxonomy) is treated as a separate concern referenced throughout; this skill answers "given I've already decided WHAT to scrape, how do I scaffold the Actor?"
+Build a scraper Actor on Apify - from configuring an existing no-code scraper to coding a full Crawlee-based crawler. This skill is the **code-first entry point** that orchestrates the canonical 3-paths decision. The deeper doctrine layer (anti-bot strategy, tool ladder, error taxonomy) is treated as a separate concern referenced throughout; this skill answers "given I've already decided WHAT to scrape, how do I scaffold the Actor?"
 
 ## Core insight: three creation paths
 
-Like for MCP servers, most people walk in thinking they should write everything from scratch with Crawlee. **In about 60% of cases, a no-code scraper Actor or an LLM-extraction Actor is the right answer.** Pick the path *before* writing code — it changes everything downstream.
+Like for MCP servers, most people walk in thinking they should write everything from scratch with Crawlee. **In about 60% of cases, a no-code scraper Actor or an LLM-extraction Actor is the right answer.** Pick the path *before* writing code - it changes everything downstream.
 
 | Path | When | Starting point |
 |---|---|---|
-| **A — Configure a no-code scraper Actor** | One-off scrape, prototype, ad-hoc data pull. You configure URLs + a small `pageFunction` JS snippet via the Console. No `apify create`, no Docker, no git. | [`apify/web-scraper`](https://apify.com/apify/web-scraper) (Cheerio + browser JS eval), [`apify/cheerio-scraper`](https://apify.com/apify/cheerio-scraper) (pure HTTP), [`apify/puppeteer-scraper`](https://apify.com/apify/puppeteer-scraper), [`apify/playwright-scraper`](https://apify.com/apify/playwright-scraper) |
-| **B — AI extraction** | Unstructured content (e.g. blog posts, articles, multi-vendor product pages with no consistent schema). You want the LLM to figure out what to extract instead of writing selectors. | [`apify/ai-web-scraper`](https://apify.com/apify/ai-web-scraper) (configure-only) or roll your own with Path C + an LLM call (`@anthropic-ai/sdk` / `openai`) |
-| **C — Code from a Crawlee template** | Production scraper you'll own, maintain, monetize via PPE, and publish on the Store. Custom logic, anti-bot handling, multi-step flows. | `apify create my-scraper --template <name>` — see Path C decision tree below |
+| **A - Configure a no-code scraper Actor** | One-off scrape, prototype, ad-hoc data pull. You configure URLs + a small `pageFunction` JS snippet via the Console. No `apify create`, no Docker, no git. | [`apify/web-scraper`](https://apify.com/apify/web-scraper) (Cheerio + browser JS eval), [`apify/cheerio-scraper`](https://apify.com/apify/cheerio-scraper) (pure HTTP), [`apify/puppeteer-scraper`](https://apify.com/apify/puppeteer-scraper), [`apify/playwright-scraper`](https://apify.com/apify/playwright-scraper) |
+| **B - AI extraction** | Unstructured content (e.g. blog posts, articles, multi-vendor product pages with no consistent schema). You want the LLM to figure out what to extract instead of writing selectors. | [`apify/ai-web-scraper`](https://apify.com/apify/ai-web-scraper) (configure-only) or roll your own with Path C + an LLM call (`@anthropic-ai/sdk` / `openai`) |
+| **C - Code from a Crawlee template** | Production scraper you'll own, maintain, monetize via PPE, and publish on the Store. Custom logic, anti-bot handling, multi-step flows. | `apify create my-scraper --template <name>` - see Path C decision tree below |
 
-**The default for production scrapers is Path C.** Path A is for prototypes and ad-hoc one-shots. Path B is for sites where structural extraction is genuinely impossible (rare — usually the right answer is Path C with a small AI-extraction step, not a fully AI-driven scraper).
+**The default for production scrapers is Path C.** Path A is for prototypes and ad-hoc one-shots. Path B is for sites where structural extraction is genuinely impossible (rare - usually the right answer is Path C with a small AI-extraction step, not a fully AI-driven scraper).
 
 ## Decision flow
 
@@ -32,27 +32,27 @@ digraph scraper_path {
     "Is this a one-off or a production Actor?" -> "Path A (no-code Actor)" [label="one-off"];
     "Is this a one-off or a production Actor?" -> "Does the target have a stable, structured layout?" [label="production"];
     "Does the target have a stable, structured layout?" -> "Path C (Crawlee template)" [label="yes"];
-    "Does the target have a stable, structured layout?" -> "Path B (AI extraction)" [label="no — varies wildly"];
+    "Does the target have a stable, structured layout?" -> "Path B (AI extraction)" [label="no - varies wildly"];
 }
 ```
 
-Before going further, you MUST have completed a target diagnosis — at minimum knowing the target's anti-bot vendor, JS-rendering needs, and whether an internal JSON API exists. **Nine times out of ten an internal JSON API exists**; finding it eliminates Path B/C complexity entirely and turns the work into a `got-scraping` + Cheerio script.
+Before going further, you MUST have completed a target diagnosis - at minimum knowing the target's anti-bot vendor, JS-rendering needs, and whether an internal JSON API exists. **Nine times out of ten an internal JSON API exists**; finding it eliminates Path B/C complexity entirely and turns the work into a `got-scraping` + Cheerio script.
 
-## Path C — Crawlee template sub-decision
+## Path C - Crawlee template sub-decision
 
 Path C has its own decision tree because Apify ships five distinct scraping templates. Picking the wrong one means either over-paying for browser compute (using Playwright for static HTML) or under-resourcing for anti-bot (using Cheerio against Cloudflare).
 
 | Template | When | Memory | Cold start |
 |---|---|---|---|
 | `ts-crawlee-cheerio` | Static HTML, no JS challenge, low-to-moderate rate limiting | 256–512 MB | < 2 s |
-| `ts-crawlee-puppeteer-chrome` | JS-rendered SPAs, basic anti-bot. Legacy choice — prefer Playwright. | 1–2 GB | 5–10 s |
+| `ts-crawlee-puppeteer-chrome` | JS-rendered SPAs, basic anti-bot. Legacy choice - prefer Playwright. | 1–2 GB | 5–10 s |
 | `ts-crawlee-playwright-chrome` | JS-rendered SPAs, moderate anti-bot (Cloudflare basic, DataDome) | 2–4 GB | 5–10 s |
 | `ts-crawlee-playwright-camoufox` | Hard targets (Cloudflare Enterprise, HUMAN/PerimeterX, Akamai stealth) | 2–4 GB | 8–15 s |
 | `ts-empty` / `ts-start` | Custom architecture not fitting any of the above (multi-Actor suites, hybrid HTTP+browser, AI-extraction Actors) | varies | varies |
 
 The full tool-ladder reasoning (with cost-per-result, IP-economics, escalation triggers) belongs to your anti-bot doctrine layer. Consult it before picking when you're not sure.
 
-Python equivalents exist for all of these (`python-crawlee-beautifulsoup`, `python-crawlee-playwright`, `python-crawlee-playwright-camoufox`). Python scraper Actors are the exception on Apify — about 90% of production scrapers in the Store are Node. Default to Node unless you have a strong reason (existing Python team, Scrapy migration, specific Python ML libraries in the extraction pipeline).
+Python equivalents exist for all of these (`python-crawlee-beautifulsoup`, `python-crawlee-playwright`, `python-crawlee-playwright-camoufox`). Python scraper Actors are the exception on Apify - about 90% of production scrapers in the Store are Node. Default to Node unless you have a strong reason (existing Python team, Scrapy migration, specific Python ML libraries in the extraction pipeline).
 
 ## The five things every scraper Actor must get right
 
@@ -65,7 +65,7 @@ Q: Does the site have an internal JSON API I can hit instead of scraping HTML?
 A: 90% yes. Spend 20 minutes in DevTools Network panel before touching Crawlee.
 ```
 
-If yes, you don't need Path C at all — you need `got-scraping` + parsing.
+If yes, you don't need Path C at all - you need `got-scraping` + parsing.
 
 ### 2. Always exit SUCCEEDED unless the platform crashed
 
@@ -86,7 +86,7 @@ await Actor.pushData(item, 'item-scraped');  // atomic shortcut: persist + charg
 ```ts
 const charge = await Actor.charge({ eventName: 'item-scraped' });
 if (charge.eventChargeLimitReached) {
-  await crawler.autoscaledPool.abort();  // graceful — don't Actor.exit() mid-crawl
+  await crawler.autoscaledPool.abort();  // graceful - don't Actor.exit() mid-crawl
   return;
 }
 ```
@@ -102,11 +102,11 @@ const price = $('.price-current, [data-price], [itemprop="price"], .price')
   .first().text().trim() || null;
 ```
 
-Prefer schema.org markup (`[itemprop="..."]`) over visual class names — it changes less often. Full selector + schema validation strategy lives in your selector-strategy reference layer.
+Prefer schema.org markup (`[itemprop="..."]`) over visual class names - it changes less often. Full selector + schema validation strategy lives in your selector-strategy reference layer.
 
 ### 5. Cache external responses in the KV Store by default
 
-Every external API response (third-party APIs, image fetches, anything you might re-fetch) goes through a KV Store cache with a 30-day TTL. The platform does not provide native TTL — it's code-managed via timestamps:
+Every external API response (third-party APIs, image fetches, anything you might re-fetch) goes through a KV Store cache with a 30-day TTL. The platform does not provide native TTL - it's code-managed via timestamps:
 
 ```ts
 const cached = await store.getValue(key);
@@ -118,7 +118,7 @@ return fresh;
 
 Full helper + key-naming convention lives in your Apify-patterns reference layer (KV Store cache pattern).
 
-## Path A — Configure a no-code scraper Actor
+## Path A - Configure a no-code scraper Actor
 
 Use when: ad-hoc one-shot, prototype, or you want to validate the diagnostic phase before committing to code.
 
@@ -138,29 +138,29 @@ Workflow (no `apify create`, no Docker, no git):
 5. Run. Inspect the dataset. Iterate.
 
 **Limitations of Path A:**
-- You don't own the Actor — you can't publish + monetize it.
+- You don't own the Actor - you can't publish + monetize it.
 - `pageFunction` is a JS string, hard to maintain in git.
 - No TypeScript, no proper testing, no PPE billing on YOUR side (the Actor owner's PPE applies).
 
 Path A is excellent for diagnosis ("does Cheerio work on this site?") before committing to Path C.
 
-## Path B — AI extraction
+## Path B - AI extraction
 
 Use when: the target's data shape varies wildly between pages and writing maintainable selectors is impossible. Genuine example: aggregating product info from 50+ different e-commerce sites with no common HTML schema.
 
 **Two patterns:**
 
-### Pattern B1 — Configure `apify/ai-web-scraper`
+### Pattern B1 - Configure `apify/ai-web-scraper`
 
 Use Apify's hosted AI-extraction Actor. No code required; you describe the data shape you want and the Actor uses an LLM to extract from each page. Best for one-off aggregation.
 
-### Pattern B2 — Path C + LLM call
+### Pattern B2 - Path C + LLM call
 
 Roll your own. Crawlee fetches the page, you feed cleaned HTML/text to Claude or GPT, parse the JSON response. See `references/path-b-ai-extraction.md` for the full pattern + prompt template + cost considerations.
 
-**Critical cost note:** Pattern B2 costs $0.001–$0.10 per page in LLM tokens alone. Path C with selectors costs ~$0.00001. **Only use AI extraction when selectors genuinely cannot work** — see the decision criteria in `references/path-b-ai-extraction.md`. The LLM-cost handling strategies (pass-through vs absorb) from your monetization layer apply here too.
+**Critical cost note:** Pattern B2 costs $0.001–$0.10 per page in LLM tokens alone. Path C with selectors costs ~$0.00001. **Only use AI extraction when selectors genuinely cannot work** - see the decision criteria in `references/path-b-ai-extraction.md`. The LLM-cost handling strategies (pass-through vs absorb) from your monetization layer apply here too.
 
-## Path C — Code from a Crawlee template
+## Path C - Code from a Crawlee template
 
 The canonical production path.
 
@@ -180,7 +180,7 @@ my-scraper/
 │   ├── input_schema.json
 │   ├── dataset_schema.json
 │   ├── output_schema.json
-│   └── pay_per_event.json     # ADD this — not in default template
+│   └── pay_per_event.json     # ADD this - not in default template
 ├── src/
 │   ├── main.ts                 # Actor entry point
 │   └── routes.ts               # Crawlee router (per-label handlers)
@@ -240,14 +240,14 @@ PPE is wired via `.actor/pay_per_event.json` (separate file):
 }
 ```
 
-The `pay_per_event.json` file lives at `.actor/pay_per_event.json` — not inside `actor.json`. Both file patterns have existed historically; the separate file is canonical in current Apify versions.
+The `pay_per_event.json` file lives at `.actor/pay_per_event.json` - not inside `actor.json`. Both file patterns have existed historically; the separate file is canonical in current Apify versions.
 
 ### Default `src/main.ts` skeleton (from `ts-crawlee-cheerio`)
 
 ```ts
 import { CheerioCrawler } from '@crawlee/cheerio';
 import { Actor } from 'apify';
-import { router } from './routes.js';  // .js extension is REQUIRED — ESM project
+import { router } from './routes.js';  // .js extension is REQUIRED - ESM project
 
 await Actor.init();
 
@@ -298,7 +298,7 @@ router.addHandler('CATEGORY', async ({ request, $, enqueueLinks, log }) => {
   for (const product of products) {
     const charge = await Actor.pushData(product, 'item-scraped');  // atomic charge+push
     if (charge.eventChargeLimitReached) {
-      log.info('Charge cap reached — stopping enqueue.');
+      log.info('Charge cap reached - stopping enqueue.');
       return;  // do not enqueue the next page
     }
   }
@@ -354,9 +354,9 @@ Then in the Apify Console:
 
 1. **Build** completes without warnings. Image size: < 500 MB for Cheerio, < 1.5 GB for Playwright.
 2. **Test run** in the Console with the real category URL: completes SUCCEEDED, dataset populated, ≥ 95% of items have all required fields.
-3. **Charged events** appear in the run's "Billing" tab — count matches dataset size × event price.
+3. **Charged events** appear in the run's "Billing" tab - count matches dataset size × event price.
 4. **Source code hygiene:** `apify actors info <user>/<actor> --json | jq '.versions[0].sourceFiles[].name'` should ONLY return public files (README, package.json, src/, .actor/*, Dockerfile). Internal notes and history files must be `.gitignored`.
-5. **Set `isSourceCodeHidden: true`** in Actor settings (or via API) — verify in incognito that the Source code tab is gone.
+5. **Set `isSourceCodeHidden: true`** in Actor settings (or via API) - verify in incognito that the Source code tab is gone.
 6. **Targets:**
    - Success rate ≥ 95% (else: graceful-exit pattern not implemented)
    - Per-page extraction rate ≥ 98% on the reference site
@@ -369,7 +369,7 @@ Full pre/post-deploy checklist in **`references/checklist-publish.md`**.
 | Mistake | Symptom | Fix |
 |---|---|---|
 | Picking Playwright for a static HTML site | 4× higher memory, 10× cold start, no benefit | Use `ts-crawlee-cheerio` first; escalate only on observed JS-rendering failure |
-| Removing `.js` extension from TS imports | Build error: "Cannot find module './routes'" | Keep the `.js` — ESM requires it in current Apify TS templates |
+| Removing `.js` extension from TS imports | Build error: "Cannot find module './routes'" | Keep the `.js` - ESM requires it in current Apify TS templates |
 | Charging before `pushData` succeeds | Users charged on errors; refund requests | Use the atomic `Actor.pushData(data, 'event-name')` shortcut, OR put `Actor.charge` AFTER `pushData` |
 | `Actor.fail()` for business errors (selector failed, target blocked) | Success rate drops to 50–70%, Store visibility tanks | Push structured error to dataset + `Actor.exit()` SUCCEEDED |
 | Hitting the live site from local machine during dev | Your home IP burned for reputation | Use fixtures in `tests/fixtures/`; mock Crawlee/Apify; first live hit is on Apify Cloud |
@@ -390,19 +390,19 @@ Full pre/post-deploy checklist in **`references/checklist-publish.md`**.
 
 ## Reference files in this skill
 
-- `references/path-a-nocode.md` — Configuring `apify/web-scraper`, `apify/cheerio-scraper`, `apify/puppeteer-scraper`, `apify/playwright-scraper`; pageFunction templates; pagination with `pseudoUrls`; when to graduate to Path C.
-- `references/path-b-ai-extraction.md` — Pattern B1 (`apify/ai-web-scraper`) vs Pattern B2 (Crawlee + LLM); prompt templates; cost-per-page math; LLM-cost handling strategies.
-- `references/path-c-crawlee-templates.md` — Full Path C walkthrough: project structure, input_schema, dataset_schema, routes pattern, pagination strategies, anti-bot escalation (DATACENTER → RESIDENTIAL → Camoufox), KV state checkpoints, AI extraction inside a route, mid-run graceful abort.
-- `references/checklist-publish.md` — Pre-publish code review, local test, deploy, post-deploy verification, 7-day Insights checklist.
+- `references/path-a-nocode.md` - Configuring `apify/web-scraper`, `apify/cheerio-scraper`, `apify/puppeteer-scraper`, `apify/playwright-scraper`; pageFunction templates; pagination with `pseudoUrls`; when to graduate to Path C.
+- `references/path-b-ai-extraction.md` - Pattern B1 (`apify/ai-web-scraper`) vs Pattern B2 (Crawlee + LLM); prompt templates; cost-per-page math; LLM-cost handling strategies.
+- `references/path-c-crawlee-templates.md` - Full Path C walkthrough: project structure, input_schema, dataset_schema, routes pattern, pagination strategies, anti-bot escalation (DATACENTER → RESIDENTIAL → Camoufox), KV state checkpoints, AI extraction inside a route, mid-run graceful abort.
+- `references/checklist-publish.md` - Pre-publish code review, local test, deploy, post-deploy verification, 7-day Insights checklist.
 
 ## Part of the mr-bridge.com toolkit
 
 This skill is part of the [mr-bridge.com](https://mr-bridge.com) toolkit for scraping, data, and content automation. Related resources:
 
-- [mr-bridge.com](https://mr-bridge.com) — home
-- [Scrapers](https://mr-bridge.com/scrapers) — the Apify Actor portfolio
-- [MCP servers](https://mr-bridge.com/mcp-servers) — Model Context Protocol servers
-- [AI workflows](https://mr-bridge.com/ai-workflows) — agents and automation
-- [Studies](https://mr-bridge.com/studies) — data studies and one-pagers
-- [Articles](https://mr-bridge.com/articles) — write-ups and guides
-- [Solutions](https://mr-bridge.com/solutions) — end-to-end solutions
+- [mr-bridge.com](https://mr-bridge.com) - home
+- [Scrapers](https://mr-bridge.com/scrapers) - the Apify Actor portfolio
+- [MCP servers](https://mr-bridge.com/mcp-servers) - Model Context Protocol servers
+- [AI workflows](https://mr-bridge.com/ai-workflows) - agents and automation
+- [Studies](https://mr-bridge.com/studies) - data studies and one-pagers
+- [Articles](https://mr-bridge.com/articles) - write-ups and guides
+- [Solutions](https://mr-bridge.com/solutions) - end-to-end solutions

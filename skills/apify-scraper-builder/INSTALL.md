@@ -1,6 +1,6 @@
-# Installation — Apify Scraper Builder skill (ChatGPT/Codex)
+# Installation - Apify Scraper Builder skill (ChatGPT/Codex)
 
-This skill ships in the **ChatGPT/Codex** skill format: a `SKILL.md`, an `agents/openai.yaml` interface descriptor, and a `references/` folder. It has no runtime dependencies — it is pure documentation/doctrine the agent reads, so there is nothing to `pip install`.
+This skill ships in the **ChatGPT/Codex** skill format: a `SKILL.md`, an `agents/openai.yaml` interface descriptor, and a `references/` folder. It has no runtime dependencies - it is pure documentation/doctrine the agent reads, so there is nothing to `pip install`.
 
 ## Prerequisites
 
@@ -109,7 +109,7 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\.codex\skills\apify-scraper-builde
 Auto-activation depends on the `description` in `SKILL.md`'s frontmatter and (for Codex) `allow_implicit_invocation` in `agents/openai.yaml`. Triggers include "build a scraper on Apify", "scrape X with an Actor", "apify create --template ts-crawlee-*", Crawlee/Cheerio/Playwright/Camoufox, request queues, session pools, pagination. If your phrasing doesn't match, force activation: "Use the `apify-scraper-builder` skill to…"
 
 **The skill references doctrine layers it doesn't ship.**
-By design. This skill is the scraper-Actor *code & architecture* entry point; it cross-references separate doctrine layers (anti-bot strategy, PPE pricing, Actor content, MCP servers) that live in their own skills. The cross-references are descriptive — the code patterns and checklists here are self-contained.
+By design. This skill is the scraper-Actor *code & architecture* entry point; it cross-references separate doctrine layers (anti-bot strategy, PPE pricing, Actor content, MCP servers) that live in their own skills. The cross-references are descriptive - the code patterns and checklists here are self-contained.
 
 ## Skill content overview
 

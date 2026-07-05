@@ -1,4 +1,4 @@
-# Publish Checklist — Scraper Actor
+# Publish Checklist - Scraper Actor
 
 Pre-publish + post-deploy verification for a scraper Actor on the Apify Store. Run this checklist before every `apify push` to production and again after deployment.
 
@@ -10,7 +10,7 @@ Complements (does not replace):
 
 This file focuses on **scraper-specific** items.
 
-## Pre-publish — code review
+## Pre-publish - code review
 
 ### Path selection
 
@@ -27,9 +27,9 @@ This file focuses on **scraper-specific** items.
 - [ ] `storages.dataset: "./dataset_schema.json"` if you have one
 - [ ] `minMemoryMbytes` / `maxMemoryMbytes` tight to actual need (256–512 for Cheerio, 2048–4096 for Playwright)
 - [ ] `defaultRunOptions.memoryMbytes` matches the typical run profile
-- [ ] `defaultRunOptions.timeoutSecs` set (3600 for short scrapes, 7200+ for large crawls — never 0 for batch-mode scrapers)
+- [ ] `defaultRunOptions.timeoutSecs` set (3600 for short scrapes, 7200+ for large crawls - never 0 for batch-mode scrapers)
 - [ ] `categories` set (matches Apify Store taxonomy)
-- [ ] No `usesStandbyMode` (that's for MCP servers, not scrapers — separate Actor type)
+- [ ] No `usesStandbyMode` (that's for MCP servers, not scrapers - separate Actor type)
 
 ### `.actor/input_schema.json`
 
@@ -72,7 +72,7 @@ This file focuses on **scraper-specific** items.
 - [ ] Crawler config: `useSessionPool: true`, `persistCookiesPerSession: true`, `retryOnBlocked: true`, `maxRequestsPerCrawl` set, `maxRequestsPerMinute` set
 - [ ] Outer try/catch that catches all errors and pushes an error record to the dataset, then `await Actor.exit()` (SUCCEEDED)
 - [ ] `Actor.setStatusMessage(..., { isStatusMessageTerminal: true })` on every exit path
-- [ ] **NO** `Actor.fail()` for business-logic errors — only for true infrastructure failures
+- [ ] **NO** `Actor.fail()` for business-logic errors - only for true infrastructure failures
 - [ ] **NO** `process.exit()` anywhere
 
 ### `src/routes.ts`
@@ -90,7 +90,7 @@ This file focuses on **scraper-specific** items.
 
 - [ ] Multi-selector fallbacks for every critical field (`'h2, [itemprop="name"], .product-name'`)
 - [ ] Prefer schema.org (`[itemprop="..."]`) over visual class names where possible
-- [ ] URL resolution via `new URL(href, baseUrl).href` — never string concat
+- [ ] URL resolution via `new URL(href, baseUrl).href` - never string concat
 - [ ] Relative paths handled (`/foo/bar` and `https://...` both work)
 - [ ] Empty / missing values return `null`, not `undefined` or empty string
 
@@ -101,7 +101,7 @@ This file focuses on **scraper-specific** items.
 - [ ] At least one test per critical extractor function
 - [ ] At least one "missing fields" test (verify nulls propagate correctly)
 - [ ] `Actor.charge()`, `Actor.pushData()`, `Actor.openKeyValueStore()` mocked in tests
-- [ ] For local development: **NO local network calls to the target site** — anywhere
+- [ ] For local development: **NO local network calls to the target site** - anywhere
 
 ### Secrets & hygiene
 
@@ -120,7 +120,7 @@ This file focuses on **scraper-specific** items.
 - [ ] Set `isSourceCodeHidden: true` so source files are hidden from the public UI
 - [ ] Verify in incognito browser that the Source code tab is gone
 
-## Pre-publish — local test
+## Pre-publish - local test
 
 ```bash
 # Run tests (no network)
@@ -152,7 +152,7 @@ apify push
 - [ ] Image size is reasonable (Cheerio < 500 MB, Playwright < 1.5 GB)
 - [ ] No warnings about missing files in the build
 
-## Post-deploy — verification
+## Post-deploy - verification
 
 ### Apify Console
 
@@ -178,7 +178,7 @@ Start a small test run from the Console:
 
 Start a run with intentionally bad input (empty `startUrls`, invalid URL, etc.):
 
-- [ ] Status: SUCCEEDED (NOT FAILED — this is the iron rule)
+- [ ] Status: SUCCEEDED (NOT FAILED - this is the iron rule)
 - [ ] Dataset contains an error record (`error: true`, `errorType: 'INVALID_INPUT'`, `message: ...`)
 - [ ] Status message ends with terminal text ("Error: ... See dataset.")
 - [ ] No PPE events charged
@@ -214,8 +214,8 @@ For Camoufox/Playwright scrapers, run on a known-protected page:
 - [ ] **Insights → Average run time** within expectations
 - [ ] **Insights → Compute units per run** stable (no leaks)
 - [ ] No unaddressed user reports in **Issues** tab
-- [ ] Reviews appearing in **Reviews** tab — respond to constructive feedback within 48h
-- [ ] **Selector breakage canary**: pick a known-good target URL; if extraction rate drops below 95%, the site changed — open an issue + update selectors
+- [ ] Reviews appearing in **Reviews** tab - respond to constructive feedback within 48h
+- [ ] **Selector breakage canary**: pick a known-good target URL; if extraction rate drops below 95%, the site changed - open an issue + update selectors
 
 ## After 30 days
 
@@ -224,11 +224,11 @@ For Camoufox/Playwright scrapers, run on a known-protected page:
   - Cheerio: < $0.0005/item (compute + proxy)
   - Playwright: < $0.005/item
   - Camoufox: < $0.02/item
-  - AI extraction: highly variable, depends on token usage — see `references/path-b-ai-extraction.md` cost math
+  - AI extraction: highly variable, depends on token usage - see `references/path-b-ai-extraction.md` cost math
 - [ ] If margin is < 50%: raise price (note: a price-increase delay applies before it takes effect)
 - [ ] If runs failing: instrument with more `Actor.setStatusMessage` calls and structured error records
 
-## Iron rules — do not skip
+## Iron rules - do not skip
 
 If any of these fail, **delete the deployment** and fix before re-publishing:
 
@@ -237,5 +237,5 @@ If any of these fail, **delete the deployment** and fix before re-publishing:
 - [ ] No `Actor.charge()` calls in error paths
 - [ ] No `Actor.fail()` calls for business-logic errors
 - [ ] `eventChargeLimitReached` handled in every chargeable code path
-- [ ] No `process.exit()` or `Actor.exit()` mid-crawl — use `crawler.autoscaledPool?.abort()`
+- [ ] No `process.exit()` or `Actor.exit()` mid-crawl - use `crawler.autoscaledPool?.abort()`
 - [ ] Tests pass without network access
